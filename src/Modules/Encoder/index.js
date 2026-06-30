@@ -101,7 +101,7 @@ export default class Encoder {
 
 		return this.bb.flip();
 	}
-	
+
 	writeFloat(float) {
 		// only supports 64-bit floating point numbers at the moment
 
@@ -189,7 +189,7 @@ export default class Encoder {
 
 	#writeFixArray(array) {
 		this.bb.writeUint8(0b10010000 | array.length);
-		
+
 		array.forEach(elem => {
 			this.write(elem);
 		});
@@ -275,6 +275,50 @@ export default class Encoder {
 		return this.bb.flip();
 	}
 
+	writeExtension(type, data) {
+		const isFixExt1 = data.length / 8 === 1;
+		const isFixExt2 = data.length / 8 === 2;
+		const isFixExt4 = data.length / 8 === 4;
+		const isFixExt8 = data.length / 8 === 8;
+		const isFixExt16 = data.length / 8 === 16;
+		const isExt8 = data.length / 8 >= 0 && data.length / 8 < 2 ** 8;
+		const isExt16 = data.length / 8 >= 2 ** 8 && data.length / 8 < 2 ** 16;
+		const isExt32 = data.length / 8 >= 2 ** 16 && data.length / 8 < 2 ** 32;
+
+		if (isFixExt1) {
+			this.bb.writeUint8(0xd4);
+		} else if (isFixExt2) {
+			this.bb.writeUint8(0xd5);
+		} else if (isFixExt4) {
+			this.bb.writeUint8(0xd6);
+		} else if (isFixExt8) {
+			this.bb.writeUint8(0xd7);
+		} else if (isFixExt16) {
+			this.bb.writeUint8(0xd8);
+		} else if (isExt8) {
+			this.bb.writeUint8(0xc7);
+			this.bb.writeUint8(data.length);
+		} else if (isExt16) {
+			this.bb.writeUint8(0xc8);
+			this.bb.writeUint16(data.length);
+		} else if (isExt32) {
+			this.bb.writeUint8(0xc9);
+			this.bb.writeUint32(data.length);
+		}
+
+		this.bb.writeInt8(type);
+		this.bb.writeBytes(data);
+
+		return this.bb.flip();
+	}
+
+	writeDate(date) {
+		const timeInSeconds = Math.floor(Number(date) / 1000);
+		const timeInSecondsUint8Array = (a = new DataView(new ArrayBuffer(32)), a.setUint32(0, timeInSeconds), new Uint8Array(a.buffer));
+
+		return this.writeExtension(-1, timeInSecondsUint8Array);
+	}
+
 	write(data) {
 		switch (typeof data) {
 			case 'number':
@@ -294,6 +338,7 @@ export default class Encoder {
 				if (data === null) return this.writeNull();
 				else if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) return this.writeBinArray(data);
 				else if (data instanceof Array) return this.writeArray(data);
+				else if (data instanceof Date) return this.writeDate(data);
 				else return this.writeMap(data);
 				break;
 		}
