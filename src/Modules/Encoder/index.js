@@ -7,14 +7,10 @@ export default class Encoder {
 
 	writeNull() {
 		this.bb.writeUint8(0xc0);
-
-		return this.bb.flip();
 	}
 
 	writeBool(boolean) {
 		this.bb.writeUint8(boolean ? 0xc3 : 0xc2);
-
-		return this.bb.flip();
 	}
 
 	#writePositiveFixint(integer) {
@@ -47,27 +43,27 @@ export default class Encoder {
 
 	#writeInt8(integer) {
 		this.bb.writeUint8(0xd0);
-		this.bb.writeUint8(Math.abs(integer));
+		this.bb.writeInt8(integer);
 	}
 
 	#writeInt16(integer) {
 		this.bb.writeUint8(0xd1);
-		this.bb.writeUint16(Math.abs(integer));
+		this.bb.writeInt16(integer);
 	}
 
 	#writeInt32(integer) {
 		this.bb.writeUint8(0xd2);
-		this.bb.writeUint32(Math.abs(integer));
+		this.bb.writeInt32(integer);
 	}
 
 	#writeInt64(integer) {
 		this.bb.writeUint8(0xd3);
-		this.bb.writeUint32(Math.abs(integer));
+		this.bb.writeInt64(integer);
 	}
 
 	writeInteger(integer) {
 		const isPositiveFixint = integer <= 127 && integer >= 0;
-		const isNegativeFixint = integer < 0 && integer >= -31;
+		const isNegativeFixint = integer < 0 && integer >= -32;
 		const isUint8 = integer >= 128 && integer < 2 ** 8;
 		const isUint16 = integer >= 2 ** 8 && integer < 2 ** 16;
 		const isUint32 = integer >= 2 ** 16 && integer < 2 ** 32;
@@ -98,8 +94,6 @@ export default class Encoder {
 		} else if (isInt64) {
 			this.#writeInt64(integer);
 		}
-
-		return this.bb.flip();
 	}
 
 	writeFloat(float) {
@@ -107,12 +101,10 @@ export default class Encoder {
 
 		this.bb.writeUint8(0xcb);
 		this.bb.writeFloat64(float);
-
-		return this.bb.flip();
 	}
 
 	#writeFixStr(str) {
-		this.bb.writeUint8(0b10100000 & str.length);
+		this.bb.writeUint8(0b10100000 | str.length);
 		this.bb.writeUTF8String(str);
 	}
 
@@ -135,10 +127,12 @@ export default class Encoder {
 	}
 
 	writeString(str) {
-		const isFixStr = str.length <= 31;
-		const is8BitString = str.length >= 32 && str.length < 2 ** 8;
-		const is16BitString = str.length >= 2 ** 8 && str.length < 2 ** 16;
-		const is32BitString = str.length >= 2 ** 16 && str.length < 2 ** 32;
+		const length = new TextEncoder().encode(str).length;
+
+		const isFixStr = length <= 31;
+		const is8BitString = length >= 32 && length < 2 ** 8;
+		const is16BitString = length >= 2 ** 8 && length < 2 ** 16;
+		const is32BitString = length >= 2 ** 16 && length < 2 ** 32;
 
 		if (isFixStr) {
 			this.#writeFixStr(str);
@@ -149,26 +143,24 @@ export default class Encoder {
 		} else if (is32BitString) {
 			this.#write32BitStr(str);
 		}
-
-		return this.bb.flip();
 	}
 
 	#write8BitBinArray(binArray) {
 		this.bb.writeUint8(0xc4);
 		this.bb.writeUint8(binArray.length);
-		this.bb.writeBytes(binArray);
+		this.bb.append(binArray);
 	}
 
 	#write16BitBinArray(binArray) {
 		this.bb.writeUint8(0xc5);
 		this.bb.writeUint16(binArray.length);
-		this.bb.writeBytes(binArray);
+		this.bb.append(binArray);
 	}
 
 	#write32BitBinArray(binArray) {
 		this.bb.writeUint8(0xc6);
 		this.bb.writeUint32(binArray.length);
-		this.bb.writeBytes(binArray);
+		this.bb.append(binArray);
 	}
 
 	writeBinArray(binArray) {
@@ -183,8 +175,6 @@ export default class Encoder {
 		} else if (is32BitBinArray) {
 			this.#write32BitBinArray(binArray);
 		}
-
-		return this.bb.flip();
 	}
 
 	#writeFixArray(array) {
@@ -225,12 +215,10 @@ export default class Encoder {
 		} else if (is32BitArray) {
 			this.#write32BitArray(array);
 		}
-
-		return this.bb.flip();
 	}
 
 	#writeFixMap(object) {
-		this.bb.writeUint8(0b10000000 && Object.keys(object).length);
+		this.bb.writeUint8(0b10000000 | Object.keys(object).length);
 
 		Object.entries(object).forEach(entry => {
 			this.write(entry[0]);
@@ -259,7 +247,7 @@ export default class Encoder {
 	}
 
 	writeMap(object) {
-		const numItems = Object.keys(object);
+		const numItems = Object.keys(object).length;
 		const isFixMap = numItems <= 15;
 		const is16BitMap = numItems >= 16 && numItems < 2 ** 16;
 		const is32BitMap = numItems >= 2 ** 16 && numItems < 2 ** 32;
@@ -271,19 +259,17 @@ export default class Encoder {
 		} else if (is32BitMap) {
 			this.#write32BitMap(object);
 		}
-
-		return this.bb.flip();
 	}
 
 	writeExtension(type, data) {
-		const isFixExt1 = data.length / 8 === 1;
-		const isFixExt2 = data.length / 8 === 2;
-		const isFixExt4 = data.length / 8 === 4;
-		const isFixExt8 = data.length / 8 === 8;
-		const isFixExt16 = data.length / 8 === 16;
-		const isExt8 = data.length / 8 >= 0 && data.length / 8 < 2 ** 8;
-		const isExt16 = data.length / 8 >= 2 ** 8 && data.length / 8 < 2 ** 16;
-		const isExt32 = data.length / 8 >= 2 ** 16 && data.length / 8 < 2 ** 32;
+		const isFixExt1 = data.length === 1;
+		const isFixExt2 = data.length === 2;
+		const isFixExt4 = data.length === 4;
+		const isFixExt8 = data.length === 8;
+		const isFixExt16 = data.length === 16;
+		const isExt8 = data.length >= 0 && data.length < 2 ** 8;
+		const isExt16 = data.length >= 2 ** 8 && data.length < 2 ** 16;
+		const isExt32 = data.length >= 2 ** 16 && data.length < 2 ** 32;
 
 		if (isFixExt1) {
 			this.bb.writeUint8(0xd4);
@@ -307,14 +293,13 @@ export default class Encoder {
 		}
 
 		this.bb.writeInt8(type);
-		this.bb.writeBytes(data);
-
-		return this.bb.flip();
+		this.bb.append(data);
 	}
 
 	writeDate(date) {
 		const timeInSeconds = Math.floor(Number(date) / 1000);
-		const timeInSecondsUint8Array = (a = new DataView(new ArrayBuffer(32)), a.setUint32(0, timeInSeconds), new Uint8Array(a.buffer));
+		let a;
+		const timeInSecondsUint8Array = (a = new DataView(new ArrayBuffer(4)), a.setUint32(0, timeInSeconds), new Uint8Array(a.buffer));
 
 		return this.writeExtension(-1, timeInSecondsUint8Array);
 	}
@@ -322,26 +307,47 @@ export default class Encoder {
 	write(data) {
 		switch (typeof data) {
 			case 'number':
-				if (data % 1 !== 0) return this.writeInteger(data);
-				else return this.writeFloat(data);
+				if (data % 1 !== 0) this.writeFloat(data);
+				else this.writeInteger(data);
 				break;
 
 			case 'boolean':
-				return this.writeBool(data);
+				this.writeBool(data);
 				break;
 
 			case 'string':
-				return this.writeString(data);
+				this.writeString(data);
 				break;
 
 			case 'object':
 				if (data === null) return this.writeNull();
-				else if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) return this.writeBinArray(data);
-				else if (data instanceof Array) return this.writeArray(data);
-				else if (data instanceof Date) return this.writeDate(data);
-				else return this.writeMap(data);
+				else if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) this.writeBinArray(data);
+				else if (data instanceof Array) this.writeArray(data);
+				else if (data instanceof Date) this.writeDate(data);
+				else this.writeMap(data);
 				break;
 		}
+
+		return this.bb;
+	}
+
+	encode(data) {
+		this.write(data);
+		return this.bb.flip().toBuffer();
 	}
 }
+
+console.log(new Encoder().encode({
+	'nig': 'ger',
+	'lol': 123,
+	'blm': true,
+	'blmlol': null,
+	'fuck': new Date(),
+	'numbers': [1, 2, 3, 999],
+	'binary': new Uint8Array([1, 2, 3, 123, 10]),
+	'map': {
+		'fuck': 'lol',
+		'hi': 'bitch'
+	}
+}));
 
