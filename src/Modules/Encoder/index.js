@@ -12,7 +12,7 @@ import StrFamily from './FormatFamilies/Str.js';
 import MixinHelper from '../MixinHelper.js';
 
 import ByteBuffer from 'bytebuffer'; 
-import msgpack from '@msgpack/msgpack';
+//import msgpack from '@msgpack/msgpack';
 
 export default class Encoder {
 	constructor() {
