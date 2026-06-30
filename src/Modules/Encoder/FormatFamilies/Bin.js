@@ -2,7 +2,7 @@ export default class BinFamily {
 	write8BitBinArray(binArray) {
 		this.bb.writeUint8(0xc4);
 		this.bb.writeUint8(binArray.length);
-		this.bb.append(binArray);
+		this.bb.append(new Uint8Array(binArray));
 	}
 
 	write16BitBinArray(binArray) {

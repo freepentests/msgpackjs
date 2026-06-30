@@ -62,3 +62,60 @@ MixinHelper.mixin(Encoder.prototype, MapFamily.prototype);
 MixinHelper.mixin(Encoder.prototype, NilFamily.prototype);
 MixinHelper.mixin(Encoder.prototype, StrFamily.prototype);
 
+// yes, i got this test data from ChatGPT, but this isn't skidding since it's not code
+const testData = {
+	id: 123,
+	negative: -42,
+	bigNumber: 4294967295,
+	float: 3.141592653589793,
+	negativeFloat: -0.125,
+
+	active: true,
+	deleted: false,
+
+	name: "Hello, MessagePack!",
+	emptyString: "",
+	unicode: "こんにちは 🌍",
+
+	nothing: null,
+
+	createdAt: new Date("2024-01-15T12:34:56.789Z"),
+
+	bytes: new Uint8Array([0, 1, 2, 3, 254, 255]),
+	clamped: new Uint8ClampedArray([10, 20, 30, 255]),
+
+	numbers: [1, 2, 3, 4.5, -6],
+	mixedArray: [
+		true,
+		false,
+		null,
+		"text",
+		new Date("2023-05-01T00:00:00Z"),
+		new Uint8Array([9, 8, 7]),
+		{
+			nested: {
+				answer: 42,
+				pi: 3.14,
+				ok: true,
+			},
+		},
+	],
+
+	emptyArray: [],
+	emptyObject: {},
+
+	nested: {
+		user: {
+			id: 1,
+			name: "Alice",
+			tags: ["admin", "editor"],
+		},
+		settings: {
+			darkMode: true,
+			volume: 0.75,
+		},
+	},
+};
+
+console.log(new Encoder().encode(testData));
+
