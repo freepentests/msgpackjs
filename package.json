@@ -12,5 +12,8 @@
   "type": "module",
   "dependencies": {
     "bytebuffer": "^5.0.1"
+  },
+  "devDependencies": {
+    "@msgpack/msgpack": "^3.1.3"
   }
 }
