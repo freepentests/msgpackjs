@@ -156,7 +156,19 @@ export default class Encoder {
 	#write8BitBinArray(binArray) {
 		this.bb.writeUint8(0xc4);
 		this.bb.writeUint8(binArray.length);
+		this.bb.writeBytes(binArray);
+	}
 
+	#write16BitBinArray(binArray) {
+		this.bb.writeUint8(0xc5);
+		this.bb.writeUint16(binArray.length);
+		this.bb.writeBytes(binArray);
+	}
+
+	#write32BitBinArray(binArray) {
+		this.bb.writeUint8(0xc6);
+		this.bb.writeUint32(binArray.length);
+		this.bb.writeBytes(binArray);
 	}
 
 	writeBinArray(binArray) {
@@ -166,6 +178,10 @@ export default class Encoder {
 
 		if (is8BitBinArray) {
 			this.#write8BitBinArray(binArray);
+		} else if (is16BitBinArray) {
+			this.#write16BitBinArray(binArray);
+		} else if (is32BitBinArray) {
+			this.#write32BitBinArray(binArray);
 		}
 	}
 }
