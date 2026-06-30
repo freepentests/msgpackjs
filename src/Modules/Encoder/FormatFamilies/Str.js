@@ -1,24 +1,24 @@
 export default class StrFamily {
-	writeFixStr(str) {
-		this.bb.writeUint8(0b10100000 | str.length);
+	writeFixStr(str, length) {
+		this.bb.writeUint8(0b10100000 | length);
 		this.bb.writeUTF8String(str);
 	}
 
-	write8BitStr(str) {
+	write8BitStr(str, length) {
 		this.bb.writeUint8(0xd9);
-		this.bb.writeUint8(str.length);
+		this.bb.writeUint8(length);
 		this.bb.writeUTF8String(str);
 	}
 
-	write16BitStr(str) {
+	write16BitStr(str, length) {
 		this.bb.writeUint8(0xda);
-		this.bb.writeUint16(str.length);
+		this.bb.writeUint16(length);
 		this.bb.writeUTF8String(str);
 	}
 
-	write32BitStr(str) {
+	write32BitStr(str, length) {
 		this.bb.writeUint8(0xdb);
-		this.bb.writeUint32(str.length);
+		this.bb.writeUint32(length);
 		this.bb.writeUTF8String(str);
 	}
 
@@ -31,13 +31,13 @@ export default class StrFamily {
 		const is32BitString = length >= 2 ** 16 && length < 2 ** 32;
 
 		if (isFixStr) {
-			this.writeFixStr(str);
+			this.writeFixStr(str, length);
 		} else if (is8BitString) {
-			this.write8BitStr(str);
+			this.write8BitStr(str, length);
 		} else if (is16BitString) {
-			this.write16BitStr(str);
+			this.write16BitStr(str, length);
 		} else if (is32BitString) {
-			this.write32BitStr(str);
+			this.write32BitStr(str, length);
 		}
 	}
 }
