@@ -183,6 +183,73 @@ export default class Encoder {
 		} else if (is32BitBinArray) {
 			this.#write32BitBinArray(binArray);
 		}
+
+		return this.bb.flip();
+	}
+
+	#writeFixArray(array) {
+		this.bb.writeUint8(0b10010000 | array.length);
+		
+		array.forEach(elem => {
+			this.write(elem);
+		});
+	}
+
+	#write16BitArray(array) {
+		this.bb.writeUint8(0xdc);
+		this.bb.writeUint16(array.length);
+
+		array.forEach(elem => {
+			this.write(elem);
+		});
+	}
+
+	#write32BitArray(array) {
+		this.bb.writeUint8(0xdd);
+		this.bb.writeUint32(array.length);
+
+		array.forEach(elem => {
+			this.write(elem);
+		});
+	}
+
+	writeArray(array) {
+		const isFixArray = array.length <= 15;
+		const is16BitArray = array.length >= 16 && array.length < 2 ** 16;
+		const is32BitArray = array.length >= 2 ** 16 && array.length < 2 ** 32;
+
+		if (isFixArray) {
+			this.#writeFixArray(array);
+		} else if (is16BitArray) {
+			this.#write16BitArray(array);
+		} else if (is32BitArray) {
+			this.#write32BitArray(array);
+		}
+
+		return this.bb.flip();
+	}
+
+	write(data) {
+		switch (typeof data) {
+			case 'number':
+				if (data % 1 !== 0) return this.writeInteger(data);
+				else return this.writeFloat(data);
+				break;
+
+			case 'boolean':
+				return this.writeBool(data);
+				break;
+
+			case 'string':
+				return this.writeString(data);
+				break;
+
+			case 'object':
+				if (data === null) return this.writeNull();
+				else if (data instanceof Uint8Array || data instanceof Uint8ClampedArray) return this.writeBinArray(data);
+				else if (data instanceof Array) return this.writeArray(data);
+				break;
+		}
 	}
 }
 
