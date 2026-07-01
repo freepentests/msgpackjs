@@ -29,4 +29,5 @@ test(new Array(200).fill('A').join(''));
 test(new Array(53_333).fill('A').join(''));
 test(new Array(100_000).fill('A').join(''));
 test([1, 2, 3, 4, 'lol', 123.123]);
+test({'blmblmblm': 'b', 'c': 'data', 'e': 123, 'lololol': 123.123})
 
