@@ -1,10 +1,14 @@
+import ArrayFamily from './FormatFamilies/Array.js';
+import BinFamily from './FormatFamilies/Bin.js';
+import ExtFamily from './FormatFamilies/Ext.js';
+import MapFamily from './FormatFamilies/Map.js';
+import StrFamily from './FormatFamilies/Str.js';
 import TypeIdentifiers from './TypeIdentifiers.js';
 
 import ExtData from '../ExtData.js';
 import MixinHelper from '../MixinHelper.js';
 
 import ByteBuffer from 'bytebuffer'; 
-import msgpack from '@msgpack/msgpack';
 
 export default class Decoder {
 	decodePositiveFixint(bb) {
@@ -15,193 +19,6 @@ export default class Decoder {
 	decodeNegativeFixint(bb) {
 		bb.offset--; // initial byte has already been read and we need to read it again, so offset needs to go back by 1
 		return bb.readUint8() - 256;
-	}
-
-	decodeFixStr(bb) {
-		bb.offset--; // initial byte has already been read and we need to read it again, so offset needs to go back by 1
-		const initialByte = bb.readUint8();
-
-		const stringLength = initialByte & 0b00011111;
-		const stringContents = bb.readUTF8String(stringLength);
-
-		return stringContents;
-	}
-
-	decode8ByteLengthBinArray(bb) {
-		const length = bb.readUint8();
-		const bytes = bb.readBytes(length).toBuffer();
-
-		return new Uint8Array(bytes);
-	}
-
-	decode16ByteLengthBinArray(bb) {
-		const length = bb.readUint16();
-		const bytes = bb.readBytes(length).toBuffer();
-
-		return new Uint8Array(bytes);
-	}
-
-	decode32ByteLengthBinArray(bb) {
-		const length = bb.readUint32();
-		const bytes = bb.readBytes(length).toBuffer();
-
-		return new Uint8Array(bytes);
-	}
-
-	decodeFloat32(bb) {
-		const number = bb.readFloat32();
-
-		return number;
-	}
-
-	decodeFloat64(bb) {
-		const number = bb.readFloat64();
-
-		return number;
-	}
-
-	decode8ByteLengthString(bb) {
-		const length = bb.readUint8();
-		const string = bb.readUTF8String(length);
-
-		return string;
-	}
-
-	decode16ByteLengthString(bb) {
-		const length = bb.readUint16();
-		const string = bb.readUTF8String(length);
-
-		return string;
-	}
-
-	decode32ByteLengthString(bb) {
-		const length = bb.readUint32();
-		const string = bb.readUTF8String(length);
-
-		return string;
-	}
-
-	decodeFixArray(bb) {
-		bb.offset--; // initial byte has already been read and we need to read it again, so offset needs to go back by 1
-		const length = bb.readUint8() & 0b00001111;
-
-		const elements = [];
-
-		for (let i = 0; i < length; i++) {
-			elements.push(this.decode(bb));
-		}
-
-		return elements;
-	}
-
-	decode16ByteLengthArray(bb) {
-		const length = bb.readUint16();
-
-		const elements = [];
-
-		for (let i = 0; i < length; i++) {
-			elements.push(this.decode(bb));
-		}
-
-		return elements;
-	}
-
-	decode32ByteLengthArray(bb) {
-		const length = bb.readUint32();
-
-		const elements = [];
-
-		for (let i = 0; i < length; i++) {
-			elements.push(this.decode(bb));
-		}
-
-		return elements;
-	}
-
-	decodeFixMap(bb) {
-		bb.offset--; // initial byte has already been read and we need to read it again, so offset needs to go back by 1
-		const length = bb.readUint8() & 0b00001111;
-
-		const object = {};
-
-		for (let i = 0; i < length; i++) {
-			const keyName = this.decode(bb);
-			const keyData = this.decode(bb);
-			object[keyName] = keyData;
-		}
-
-		return object;
-	}
-
-	decode16ByteLengthMap(bb) {
-		const length = bb.readUint16();
-
-		const object = {};
-
-		for (let i = 0; i < length; i++) {
-			const keyName = this.decode(bb);
-			const keyData = this.decode(bb);
-			object[keyName] = keyData;
-		}
-
-		return object;
-	}
-
-	decode32ByteLengthMap(bb) {
-		const length = bb.readUint32();
-
-		const object = {};
-
-		for (let i = 0; i < length; i++) {
-			const keyName = this.decode(bb);
-			const keyData = this.decode(bb);
-			object[keyName] = keyData;
-		}
-
-		return object;
-	}
-
-	decodeTimestamp32(bytes) {
-		const bb = ByteBuffer.wrap(bytes);
-		const seconds = bb.readUint32();
-		const dateObject = new Date(seconds * 1000);
-
-		return dateObject;
-	}
-
-	decodeFixext(bb, length) {
-		const type = bb.readInt8();
-		const bytes = bb.readBytes(length).toBuffer();
-
-		if (length === 4 && type === -1) {
-			return this.decodeTimestamp32(bytes);
-		}
-
-		return new ExtData(type, new Uint8Array(bytes));
-	}
-
-	decodeExt8(bb) {
-		const length = bb.readUint8();
-		const type = bb.readInt8();
-
-		const bytes = bb.readBytes(length).toBuffer();
-		return new ExtData(type, new Uint8Array(bytes));
-	}
-
-	decodeExt16(bb) {
-		const length = bb.readUint16();
-		const type = bb.readInt8();
-
-		const bytes = bb.readBytes(length).toBuffer();
-		return new ExtData(type, new Uint8Array(bytes));
-	}
-
-	decodeExt32(bb) {
-		const length = bb.readUint32();
-		const type = bb.readInt8();
-
-		const bytes = bb.readBytes(length).toBuffer();
-		return new ExtData(type, new Uint8Array(bytes));
 	}
 
 	decode(data) {
@@ -271,4 +88,10 @@ export default class Decoder {
 		}
 	}
 }
+
+MixinHelper.mixin(Decoder.prototype, ArrayFamily.prototype);
+MixinHelper.mixin(Decoder.prototype, BinFamily.prototype);
+MixinHelper.mixin(Decoder.prototype, ExtFamily.prototype);
+MixinHelper.mixin(Decoder.prototype, MapFamily.prototype);
+MixinHelper.mixin(Decoder.prototype, StrFamily.prototype);
 
