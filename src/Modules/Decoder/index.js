@@ -59,6 +59,27 @@ export default class Decoder {
 		return number;
 	}
 
+	decode8ByteLengthString(bb) {
+		const length = bb.readUint8();
+		const string = bb.readUTF8String(length);
+
+		return string;
+	}
+
+	decode16ByteLengthString(bb) {
+		const length = bb.readUint16();
+		const string = bb.readUTF8String(length);
+
+		return string;
+	}
+
+	decode32ByteLengthString(bb) {
+		const length = bb.readUint32();
+		const string = bb.readUTF8String(length);
+
+		return string;
+	}
+
 	decode(data) {
 		const bb = data.__isByteBuffer__ ? data : ByteBuffer.wrap(data);
 
@@ -97,6 +118,10 @@ export default class Decoder {
 			case TypeIdentifiers.int16: return bb.readInt16();
 			case TypeIdentifiers.int32: return bb.readInt32();
 			case TypeIdentifiers.int64: return bb.readInt64();
+
+			case TypeIdentifiers.str8Byte: return this.decode8ByteLengthString(bb);
+			case TypeIdentifiers.str16Byte: return this.decode16ByteLengthString(bb);
+			case TypeIdentifiers.str32Byte: return this.decode32ByteLengthString(bb);
 		}
 	}
 }

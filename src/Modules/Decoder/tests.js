@@ -23,4 +23,8 @@ test(1_000_000);
 test(-111);
 test(-666);
 test(-100_000);
+test('this is a fixstr');
+test(new Array(200).fill('A').join(''));
+test(new Array(53_333).fill('A').join(''));
+test(new Array(100_000).fill('A').join(''));
 
