@@ -6,6 +6,7 @@ const TypeIdentifiers = {
 	binArray8Byte: 0xc4,
 	binArray16Byte: 0xc5,
 	binArray32Byte: 0xc6,
+	float32: 0xca,
 	float64: 0xcb,
 	uint8: 0xcc,
 	uint16: 0xcd,

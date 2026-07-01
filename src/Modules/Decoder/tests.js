@@ -12,4 +12,6 @@ test(null);
 test(new Uint8Array([1, 2, 3]));
 test(new Uint8Array(1000).fill(1));
 test(new Uint8Array(100_000).fill(2));
+test(1.123);
+test(Math.PI);
 

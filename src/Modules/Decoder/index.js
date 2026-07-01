@@ -47,6 +47,18 @@ export default class Decoder {
 		return new Uint8Array(bytes);
 	}
 
+	decodeFloat32(bb) {
+		const number = bb.readFloat32();
+
+		return number;
+	}
+
+	decodeFloat64(bb) {
+		const number = bb.readFloat64();
+
+		return number;
+	}
+
 	decode(data) {
 		const bb = data.__isByteBuffer__ ? data : ByteBuffer.wrap(data);
 
@@ -72,6 +84,9 @@ export default class Decoder {
 			case TypeIdentifiers.binArray8Byte: return this.decode8ByteLengthBinArray(bb);
 			case TypeIdentifiers.binArray16Byte: return this.decode16ByteLengthBinArray(bb);
 			case TypeIdentifiers.binArray32Byte: return this.decode32ByteLengthBinArray(bb);
+
+			case TypeIdentifiers.float32: return this.decodeFloat32(bb);
+			case TypeIdentifiers.float64: return this.decodeFloat64(bb);
 		}
 	}
 }
