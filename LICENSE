@@ -1,0 +1,6 @@
+Copyright (C) freepentests
+
+The license is that you are prohibited to steal my code, and you are prohibited to incorporate my library into your projects. In other words, all rights reserved.
+
+If you want to implement msgpack into your own programs, don't use my library, because using libraries is skidding. If you really want to incorporate msgpack into your own programs, then read from the msgpack specification, and use this library's source code as a reference if you do not understand something in the msgpack specification. Libraries are skidding.
+
