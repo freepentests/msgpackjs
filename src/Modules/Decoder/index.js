@@ -8,7 +8,7 @@ import TypeIdentifiers from './TypeIdentifiers.js';
 import ExtData from '../ExtData.js';
 import MixinHelper from '../MixinHelper.js';
 
-import ByteBuffer from 'bytebuffer'; 
+import ByteBuffer from '../ByteBuffers/index.js'; 
 
 export default class Decoder {
 	decodePositiveFixint(bb) {
