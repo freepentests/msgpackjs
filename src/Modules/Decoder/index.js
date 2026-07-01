@@ -132,6 +132,34 @@ export default class Decoder {
 		return object;
 	}
 
+	decode16ByteLengthMap(bb) {
+		const length = bb.readUint16();
+
+		const object = {};
+
+		for (let i = 0; i < length; i++) {
+			const keyName = this.decode(bb);
+			const keyData = this.decode(bb);
+			object[keyName] = keyData;
+		}
+
+		return object;
+	}
+
+	decode32ByteLengthMap(bb) {
+		const length = bb.readUint32();
+
+		const object = {};
+
+		for (let i = 0; i < length; i++) {
+			const keyName = this.decode(bb);
+			const keyData = this.decode(bb);
+			object[keyName] = keyData;
+		}
+
+		return object;
+	}
+
 	decode(data) {
 		const bb = data.__isByteBuffer__ ? data : ByteBuffer.wrap(data);
 
@@ -183,6 +211,9 @@ export default class Decoder {
 
 			case TypeIdentifiers.array16Byte: return this.decode16ByteLengthArray(bb);
 			case TypeIdentifiers.array32Byte: return this.decode32ByteLengthArray(bb);
+
+			case TypeIdentifiers.map16Byte: return this.decode16ByteLengthMap(bb);
+			case TypeIdentifiers.map32Byte: return this.decode32ByteLengthMap(bb);
 		}
 	}
 }

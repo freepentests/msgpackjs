@@ -33,3 +33,15 @@ test(new Array(777).fill('a'));
 test(new Array(70_000).fill('a'));
 test({'blmblmblm': 'b', 'c': 'data', 'e': 123, 'lololol': 123.123});
 
+const a = new Object();
+for (let i = 0; i < 600; i++) {
+	a[i] = i + 1;
+}
+test(a);
+
+const b = new Object();
+for (let i = 0; i < 70_000; i++) {
+	b[i] = i + 1;
+}
+test(b);
+
