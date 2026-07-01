@@ -168,6 +168,30 @@ export default class Decoder {
 		return new ExtData(type, new Uint8Array(bytes));
 	}
 
+	decodeExt8(bb) {
+		const length = bb.readUint8();
+		const type = bb.readInt8();
+
+		const bytes = bb.readBytes(length).toBuffer();
+		return new ExtData(type, new Uint8Array(bytes));
+	}
+
+	decodeExt16(bb) {
+		const length = bb.readUint16();
+		const type = bb.readInt8();
+
+		const bytes = bb.readBytes(length).toBuffer();
+		return new ExtData(type, new Uint8Array(bytes));
+	}
+
+	decodeExt32(bb) {
+		const length = bb.readUint32();
+		const type = bb.readInt8();
+
+		const bytes = bb.readBytes(length).toBuffer();
+		return new ExtData(type, new Uint8Array(bytes));
+	}
+
 	decode(data) {
 		const bb = data.__isByteBuffer__ ? data : ByteBuffer.wrap(data);
 
@@ -228,6 +252,10 @@ export default class Decoder {
 			case TypeIdentifiers.fixExt4: return this.decodeFixext(bb, 4);
 			case TypeIdentifiers.fixExt8: return this.decodeFixext(bb, 8);
 			case TypeIdentifiers.fixExt16: return this.decodeFixext(bb, 16);
+
+			case TypeIdentifiers.ext8: return this.decodeExt8(bb);
+			case TypeIdentifiers.ext16: return this.decodeExt16(bb);
+			case TypeIdentifiers.ext32: return this.decodeExt32(bb);
 		}
 	}
 }
