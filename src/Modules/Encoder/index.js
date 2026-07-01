@@ -49,7 +49,7 @@ export default class Encoder {
 		this.write(data);
 
 		const binary = new Uint8Array(this.bb.flip().toBuffer());
-		//this.bb = new ByteBuffer();
+		this.bb = new ByteBuffer();
 
 		return binary;
 	}
