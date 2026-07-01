@@ -1,5 +1,7 @@
 export default class ExtFamily {
-	writeExtension(type, data) {
+	writeExtension(extDataObject) {
+		const { type, data } = extDataObject;
+
 		const isFixExt1 = data.length === 1;
 		const isFixExt2 = data.length === 2;
 		const isFixExt4 = data.length === 4;
