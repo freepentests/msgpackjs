@@ -1,28 +1,28 @@
 export default class ArrayFormat {
-	writeFixArray(array) {
-		this.bb.writeUint8(0b10010000 | array.length);
-
+	writeArrayElems(array) {
 		array.forEach(elem => {
 			this.write(elem);
 		});
+	}
+
+	writeFixArray(array) {
+		this.bb.writeUint8(0b10010000 | array.length);
+
+		this.writeArrayElems(array);
 	}
 
 	write16BitArray(array) {
 		this.bb.writeUint8(0xdc);
 		this.bb.writeUint16(array.length);
 
-		array.forEach(elem => {
-			this.write(elem);
-		});
+		this.writeArrayElems(array);
 	}
 
 	write32BitArray(array) {
 		this.bb.writeUint8(0xdd);
 		this.bb.writeUint32(array.length);
 
-		array.forEach(elem => {
-			this.write(elem);
-		});
+		this.writeArrayElems(array);
 	}
 
 	writeArray(array) {

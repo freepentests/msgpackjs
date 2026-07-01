@@ -1,31 +1,29 @@
 export default class MapFamily {
-	writeFixMap(object) {
-		this.bb.writeUint8(0b10000000 | Object.keys(object).length);
-
+	writeObjectEntries(object) {
 		Object.entries(object).forEach(entry => {
 			this.write(entry[0]);
 			this.write(entry[1]);
 		});
+	}
+
+	writeFixMap(object) {
+		this.bb.writeUint8(0b10000000 | Object.keys(object).length);
+
+		this.writeObjectEntries(object);
 	}
 
 	write16BitMap(object) {
 		this.bb.writeUint8(0xde);
 		this.bb.writeUint16(Object.keys(object).length);
 
-		Object.entries(object).forEach(entry => {
-			this.write(entry[0]);
-			this.write(entry[1]);
-		});
+		this.writeObjectEntries(object);
 	}
 
 	write32BitMap(object) {
 		this.bb.writeUint8(0xdf);
 		this.bb.writeUint32(Object.keys(object).length);
 
-		Object.entries(object).forEach(entry => {
-			this.write(entry[0]);
-			this.write(entry[1]);
-		});
+		this.writeObjectEntries(object);
 	}
 
 	writeMap(object) {
