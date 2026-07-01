@@ -1,8 +1,8 @@
 const TypeIdentifiers = {
 	positiveFixint: 0x00,
 	negativeFixint: 0xe0,
-	trueBool: 0xc2,
-	falseBool: 0xc3,
+	falseBool: 0xc2,
+	trueBool: 0xc3,
 	binArray8Byte: 0xc4,
 	binArray16Byte: 0xc5,
 	binArray32Byte: 0xc6,
