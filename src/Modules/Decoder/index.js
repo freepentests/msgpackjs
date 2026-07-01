@@ -85,8 +85,18 @@ export default class Decoder {
 			case TypeIdentifiers.binArray16Byte: return this.decode16ByteLengthBinArray(bb);
 			case TypeIdentifiers.binArray32Byte: return this.decode32ByteLengthBinArray(bb);
 
-			case TypeIdentifiers.float32: return this.decodeFloat32(bb);
-			case TypeIdentifiers.float64: return this.decodeFloat64(bb);
+			case TypeIdentifiers.float32: return bb.readFloat32();
+			case TypeIdentifiers.float64: return bb.readFloat64();
+
+			case TypeIdentifiers.uint8: return bb.readUint8();
+			case TypeIdentifiers.uint16: return bb.readUint16();
+			case TypeIdentifiers.uint32: return bb.readUint32();
+			case TypeIdentifiers.uint64: return bb.readUint64();
+
+			case TypeIdentifiers.int8: return bb.readInt8();
+			case TypeIdentifiers.int16: return bb.readInt16();
+			case TypeIdentifiers.int32: return bb.readInt32();
+			case TypeIdentifiers.int64: return bb.readInt64();
 		}
 	}
 }
