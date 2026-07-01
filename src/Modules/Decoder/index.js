@@ -80,6 +80,19 @@ export default class Decoder {
 		return string;
 	}
 
+	decodeFixArray(bb) {
+		bb.offset--; // initial byte has already been read and we need to read it again, so offset needs to go back by 1
+		const length = bb.readUint8() & 0b00001111;
+
+		const elements = [];
+
+		for (let i = 0; i < length; i++) {
+			elements.push(this.decode(bb));
+		}
+
+		return elements;
+	}
+
 	decode(data) {
 		const bb = data.__isByteBuffer__ ? data : ByteBuffer.wrap(data);
 
@@ -88,6 +101,7 @@ export default class Decoder {
 		const isPositiveFixint = typeIdentifier >= 0 && typeIdentifier < 128;
 		const isNegativeFixint = typeIdentifier >= TypeIdentifiers.negativeFixint && typeIdentifier < TypeIdentifiers.negativeFixint + 32;
 		const isFixStr = typeIdentifier >= TypeIdentifiers.fixStr && typeIdentifier < TypeIdentifiers.fixStr + 32;
+		const isFixArray = typeIdentifier >= TypeIdentifiers.fixArray && typeIdentifier < TypeIdentifiers.fixArray + 16;
 
 		if (isPositiveFixint) {
 			return this.decodePositiveFixint(bb);
@@ -95,6 +109,8 @@ export default class Decoder {
 			return this.decodeNegativeFixint(bb);
 		} else if (isFixStr) {
 			return this.decodeFixStr(bb);
+		} else if (isFixArray) {
+			return this.decodeFixArray(bb);
 		}
 
 		switch (typeIdentifier) {

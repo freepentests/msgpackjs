@@ -3,6 +3,7 @@ import msgpack from '@msgpack/msgpack';
 
 const test = (input) => {
 	const isEqual = JSON.stringify(new Decoder().decode(msgpack.encode(input))) === JSON.stringify(input);
+	//console.log(new Decoder().decode(msgpack.encode(input)));
 	console.assert(isEqual, `test failed for input: ${JSON.stringify(input)}`);
 };
 
@@ -27,4 +28,5 @@ test('this is a fixstr');
 test(new Array(200).fill('A').join(''));
 test(new Array(53_333).fill('A').join(''));
 test(new Array(100_000).fill('A').join(''));
+test([1, 2, 3, 4, 'lol', 123.123]);
 
