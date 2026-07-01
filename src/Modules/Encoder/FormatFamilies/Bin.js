@@ -20,7 +20,7 @@ export default class BinFamily {
 	writeBinArray(binArray) {
 		const is8BitBinArray = binArray.length >= 0 && binArray.length < 2 ** 8;
 		const is16BitBinArray = binArray.length >= 2 ** 8 && binArray.length < 2 ** 16;
-		const is32BitBinArary = binArray.length >= 2 ** 16 && binArray.length < 2 ** 32;
+		const is32BitBinArray = binArray.length >= 2 ** 16 && binArray.length < 2 ** 32;
 
 		if (is8BitBinArray) {
 			this.write8BitBinArray(binArray);
