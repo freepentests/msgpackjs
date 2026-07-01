@@ -1,5 +1,6 @@
 import TypeIdentifiers from './TypeIdentifiers.js';
 
+import ExtData from '../ExtData.js';
 import MixinHelper from '../MixinHelper.js';
 
 import ByteBuffer from 'bytebuffer'; 
@@ -160,6 +161,13 @@ export default class Decoder {
 		return object;
 	}
 
+	decodeFixext(bb, length) {
+		const type = bb.readInt8();
+		const bytes = bb.readBytes(length).toBuffer();
+
+		return new ExtData(type, new Uint8Array(bytes));
+	}
+
 	decode(data) {
 		const bb = data.__isByteBuffer__ ? data : ByteBuffer.wrap(data);
 
@@ -214,6 +222,12 @@ export default class Decoder {
 
 			case TypeIdentifiers.map16Byte: return this.decode16ByteLengthMap(bb);
 			case TypeIdentifiers.map32Byte: return this.decode32ByteLengthMap(bb);
+
+			case TypeIdentifiers.fixExt1: return this.decodeFixext(bb, 1);
+			case TypeIdentifiers.fixExt2: return this.decodeFixext(bb, 2);
+			case TypeIdentifiers.fixExt4: return this.decodeFixext(bb, 4);
+			case TypeIdentifiers.fixExt8: return this.decodeFixext(bb, 8);
+			case TypeIdentifiers.fixExt16: return this.decodeFixext(bb, 16);
 		}
 	}
 }
