@@ -76,5 +76,3 @@ export default class Decoder {
 	}
 }
 
-console.log(new Decoder().decode(msgpack.encode(new Uint8Array([1, 2, 3, 4]))));
-
